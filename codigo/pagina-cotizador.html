@@ -1,0 +1,1340 @@
+<!--
+  Módulo de código (Divi Code Module) de la página /cotizador de tiendagym.com.
+  HTML + CSS + JS tal como está implementado en producción, con dos únicos cambios
+  por privacidad/seguridad:
+    - El número de cuenta bancaria se reemplazó por un marcador de posición.
+    - La URL del Web App de Google Apps Script (backend de registro de cotizaciones)
+      se reemplazó por un marcador de posición, para no exponer el endpoint real.
+-->
+<div class="tg-header-cotizacion">
+  <div class="tg-datos-cliente">
+    <h3>Datos del cliente</h3>
+    <label>Nombre <span class="tg-required">*</span></label>
+<input type="text" id="cliente-nombre" placeholder="Nombre del cliente">
+<div class="tg-error" id="error-nombre"></div>
+<label>Documento <span class="tg-required">*</span></label>
+<input type="text" id="cliente-documento" placeholder="Documento">
+<div class="tg-error" id="error-documento"></div>
+<label>Celular <span class="tg-required">*</span></label>
+<input type="text" id="cliente-celular" placeholder="Celular" maxlength="10">
+<div class="tg-error" id="error-celular"></div>
+<label>Correo <span class="tg-required">*</span></label>
+<input type="email" id="cliente-correo" placeholder="Correo">
+<div class="tg-error" id="error-correo"></div>
+<label>Dirección <span class="tg-required">*</span></label>
+<input type="text" id="cliente-direccion" placeholder="Dirección">
+<div class="tg-error" id="error-direccion"></div>
+    </div>
+  <div class="tg-datos-empresa">
+    <h3>Tienda Gym SAS</h3>
+    <p><strong>Fecha:</strong> <span id="fecha-cotizacion"></span></p>
+    <p><strong>NIT:</strong> 901790691-6</p>
+    <p><strong>Celular:</strong> 3208745594</p>
+    <p><strong>Cómo pagar:</strong> Davivienda ahorros</p>
+    <p><strong>Abono:</strong> 60%</p>
+  </div>
+</div>
+<div class="tg-cotizador">
+  <h2>Cotizador Tienda Gym</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Precio unitario</th>
+        <th>Cantidad</th>
+        <th>Sub-total</th>
+        <th>Eliminar</th>
+      </tr>
+    </thead>
+    <tbody id="filas-productos"></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3"><strong>Total</strong></td>
+        <td id="total">$0</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+<button type="button" id="agregar-producto" class="tg-add-btn">
+  <span class="tg-add-btn__text">Agregar producto</span>
+  <span class="tg-add-btn__icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" fill="none">
+      <line y2="19" y1="5" x2="12" x1="12"></line>
+      <line y2="12" y1="12" x2="19" x1="5"></line>
+    </svg>
+  </span>
+</button>
+<div id="tg-buscador-contenedor" class="tg-buscador-contenedor">
+  <input type="text" id="tg-buscador-productos" placeholder="BUSCAR">
+  <div id="tg-resultados-productos"></div>
+</div>
+<div class="tg-botones-descarga">
+  <button type="button" id="descargar-pdf" class="Documents-btn pdf-btn">
+  <span class="folderContainer">
+    <span class="fileBack"></span>
+    <span class="filePage"></span>
+    <span class="fileFront"></span>
+  </span>
+  <span class="text">Descargar PDF</span>
+</button>
+<button type="button" id="descargar-excel" class="Documents-btn excel-btn">
+  <span class="folderContainer">
+    <span class="fileBack"></span>
+    <span class="filePage"></span>
+    <span class="fileFront"></span>
+  </span>
+  <span class="text">Descargar Excel</span>
+</button>
+<button type="button" id="enviar-whatsapp" class="button2">
+    Enviar por WhatsApp
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4.868,43.303l2.694-9.835C5.9,30.59,5.026,27.324,5.027,23.979C5.032,13.514,13.548,5,24.014,5c5.079,0.002,9.845,1.979,13.43,5.566c3.584,3.588,5.558,8.356,5.556,13.428c-0.004,10.465-8.522,18.98-18.986,18.98h-0.008c-3.177-0.001-6.3-0.798-9.073-2.311L4.868,43.303z" fill="#fff"/>
+        <path d="M35.176,12.832c-2.98-2.982-6.941-4.625-11.157-4.626c-8.704,0-15.783,7.076-15.787,15.774c-0.001,2.981,0.833,5.883,2.413,8.396l0.376,0.597l-1.595,5.821l5.973-1.566l0.577,0.342c2.422,1.438,5.2,2.198,8.032,2.199h0.006c8.698,0,15.777-7.077,15.78-15.776C39.795,19.778,38.156,15.814,35.176,12.832z" fill="#40c351"/>
+        <path fill="#fff" d="M19.268,16.045c-.355-.79-.729-.806-1.068-.82-.277-.012-.593-.011-.909-.011-.316,0-.83.119-1.265.594-.435.475-1.661,1.622-1.661,3.956,0,2.334,1.7,4.59,1.937,4.906.237.316,3.282,5.259,8.104,7.161,4.007,1.58,4.823,1.266,5.693,1.187.87-.079,2.807-1.147,3.202-2.255.395-1.108.395-2.057.277-2.255-.119-.198-.435-.316-.909-.554s-2.807-1.385-3.242-1.543c-.435-.158-.751-.237-1.068.238-.316.474-1.225,1.543-1.502,1.859-.277.317-.554.357-1.028.119-.474-.238-2.002-.738-3.815-2.354-1.41-1.257-2.362-2.81-2.639-3.285-.277-.474-.03-.731.208-.968.213-.213.474-.554.712-.831.237-.277.316-.475.474-.791.158-.317.079-.594-.04-.831-.382-.763-1.304-3.109-1.726-4.047z"/>
+    </svg>
+</button>
+</div>
+  <div id="tg-error-general"></div>
+<div class="tg-condiciones">
+  <p><strong>VALIDEZ DE LA OFERTA:</strong> 5 días</p>
+  <p><strong>TIEMPO DE ENTREGA:</strong> 30 días hábiles</p>
+  <p><strong>CONDICIONES DE PAGO:</strong> 60% para inicio, 40% restante cuando las máquinas se encuentren listas para el despacho.</p>
+  <p><strong>TRANSPORTE E INSTALACIÓN POR CUENTA DEL COMPRADOR</strong></p>
+</div>
+<style>
+/* BOTONES DESCARGA PDF / EXCEL */
+/* ===== PDF ===== */
+.pdf-btn .fileBack{
+    background:#8b1e1e;
+}
+.pdf-btn .fileFront{
+    background:#b22222;
+}
+.pdf-btn{
+    background:#000 !important;
+}
+.pdf-btn:hover{
+    background:#d66a6a !important;
+}
+.pdf-btn:hover .text{
+    color:#fff;
+}
+
+/* ===== EXCEL ===== */
+.excel-btn .fileBack{
+    background:#1b5e20;
+}
+.excel-btn .fileFront{
+    background:#2e7d32;
+}
+.excel-btn{
+    background:#000 !important;
+}
+.excel-btn:hover{
+    background:#6fbf73 !important;
+}
+.excel-btn:hover .text{
+    color:#fff;
+}
+
+.tg-botones-descarga {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tg-botones-descarga .Documents-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: fit-content;
+  height: 45px;
+  border: none;
+  padding: 0 16px;
+  border-radius: 6px;
+  background-color: #000;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.folderContainer {
+  width: 38px;
+  height: 30px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.fileBack {
+  position: absolute;
+  width: 30px;
+  height: 24px;
+  background: #fff200;
+  border-radius: 4px;
+  z-index: 1;
+}
+.filePage {
+  position: absolute;
+  width: 18px;
+  height: 23px;
+  background: #fff;
+  border-radius: 2px;
+  z-index: 2;
+  bottom: 3px;
+  transition: all 0.3s ease;
+}
+.fileFront {
+  position: absolute;
+  width: 34px;
+  height: 18px;
+  background: #d6c900;
+  border-radius: 3px;
+  z-index: 3;
+  bottom: 0;
+  transform-origin: bottom;
+  transition: all 0.3s ease;
+}
+.Documents-btn .text {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+.Documents-btn:hover {
+  background-color: #fff200;
+}
+.Documents-btn:hover .text {
+  color: #000;
+}
+.Documents-btn:hover .filePage {
+  transform: translateY(-5px);
+}
+.Documents-btn:hover .fileFront {
+  transform: rotateX(30deg);
+}
+.Documents-btn:active {
+  transform: scale(0.95);
+}
+.tg-header-cotizacion {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 25px;
+}
+.tg-datos-cliente,
+.tg-datos-empresa {
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+.tg-datos-cliente h3,
+.tg-datos-empresa h3 {
+  background: #000;
+  color: #fff;
+  padding: 12px;
+  margin: -20px -20px 15px -20px;
+  text-align: center;
+}
+.tg-datos-empresa h3 {
+  background: #fff200;
+  color: #000;
+  font-size: 24px;
+}
+.tg-datos-cliente label {
+  display: block;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.tg-datos-cliente input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+}
+.tg-cotizador {
+  max-width: 1100px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+}
+.tg-cotizador h2 {
+  text-align: center;
+  background: #000;
+  color: #fff;
+  padding: 16px;
+  margin: 0;
+}
+.tg-cotizador table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tg-cotizador th {
+  background: #777;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+.tg-cotizador td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+.tg-producto-celda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-weight: 700;
+}
+.tg-producto-celda img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+.tg-cotizador select,
+.tg-cotizador input {
+  width: 100%;
+  padding: 8px;
+}
+.tg-cotizador tfoot td {
+  background: #000;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+}
+#agregar-producto.tg-add-btn{
+    position:relative;
+    width:220px;
+    height:45px;
+    margin-top:20px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    border:1px solid #7a7a79;
+    background:#9c9c9b;
+    overflow:hidden;
+    padding:0;
+}
+.tg-add-btn__text{
+    transform: translateX(28px);
+    color:#fff;
+    font-weight:700;
+    font-size:15px;
+    white-space:nowrap;
+    transition:
+        transform .45s ease,
+        opacity .45s ease,
+        color .45s ease;
+}
+.tg-add-btn__icon{
+    position:absolute;
+    right:0;
+    width:50px;
+    height:100%;
+    background:#7a7a79;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+#agregar-producto.tg-add-btn:hover{
+    background:#7a7a79;
+}
+#agregar-producto.tg-add-btn:hover .tg-add-btn__icon{
+    width:218px;
+}
+#agregar-producto.tg-add-btn:active{
+    border-color:#2e8644;
+}
+#agregar-producto.tg-add-btn:active .tg-add-btn__icon{
+    background:#2e8644;
+}
+ #agregar-producto.tg-add-btn:hover .tg-add-btn__text{
+    opacity:0;
+    transform:translateX(-15px);
+}
+
+.eliminar-fila {
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.tg-botones-descarga {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+/* BOTÓN WHATSAPP */
+.button2{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    height:45px;
+    padding:0 22px;
+    border-radius:8px;
+    border:1px solid #e8e8e8;
+    background:#e8e8e8;
+    color:#111;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    overflow:hidden;
+    position:relative;
+    isolation:isolate;
+    transition:.3s ease;
+    box-shadow:
+        6px 6px 12px #cfcfcf,
+        -6px -6px 12px #ffffff;
+}
+.button2 svg{
+    width:26px;
+    height:26px;
+    flex-shrink:0;
+}
+.button2::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:#0f9d8f;
+    transform:translateY(100%);
+    transition:.35s ease;
+    z-index:-1;
+}
+.button2:hover::before{
+    transform:translateY(0);
+}
+.button2:hover{
+    color:#fff;
+    border-color:#0f9d8f;
+}
+.button2:active{
+    transform:scale(.96);
+    box-shadow:
+        inset 4px 4px 10px #c5c5c5,
+        inset -4px -4px 10px #ffffff;
+}
+.tg-condiciones {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 14px;
+  color: #000;
+  line-height: 2;
+}
+.tg-buscador-contenedor {
+  display: none;
+  margin-top: 15px;
+  border-top: 3px solid #999;
+  padding: 15px;
+  background: #fff;
+}
+.tg-buscador-contenedor.activo {
+  display: block;
+}
+#tg-buscador-productos {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid #999;
+  font-weight: bold;
+}
+#tg-resultados-productos {
+  max-height: 420px;
+  overflow-y: auto;
+}
+.tg-producto-resultado {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+.tg-producto-resultado:hover {
+  background: #f5f5f5;
+}
+.tg-producto-resultado img {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+}
+.tg-producto-resultado strong {
+  display: block;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.tg-producto-resultado span {
+  font-weight: bold;
+}
+
+  .tg-variaciones-box {
+  margin-left: 95px;
+  margin-bottom: 15px;
+  padding: 12px;
+  background: #f7f7f7;
+  border-left: 4px solid #000;
+}
+.tg-variacion-opcion {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #fff;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  font-weight: bold;
+}
+.tg-variacion-opcion:hover {
+  background: #fff200;
+}
+
+@media(max-width: 768px) {
+  .tg-header-cotizacion {
+    grid-template-columns: 1fr;
+  }
+  .tg-cotizador {
+    overflow-x: auto;
+  }
+  .tg-cotizador table {
+    min-width: 850px;
+  }
+}
+@media print {
+  #agregar-producto,
+  .eliminar-fila,
+  .tg-botones-descarga {
+    display: none !important;
+  }
+}
+
+.tg-required {
+  color: red;
+  font-weight: bold;
+}
+.tg-error {
+  color: red;
+  font-size: 13px;
+  margin-top: 4px;
+  min-height: 16px;
+}
+.tg-input-error {
+  border: 2px solid red !important;
+}
+#tg-error-general {
+  color: red;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const fechaElemento = document.getElementById("fecha-cotizacion");
+  const fechaActual = new Date();
+  fechaElemento.textContent = fechaActual.toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+  const tbody = document.getElementById("filas-productos");
+  const totalElemento = document.getElementById("total");
+  const botonAgregar = document.getElementById("agregar-producto");
+
+  function obtenerNumeroCotizacion() {
+  let numero = sessionStorage.getItem("tg_numero_cotizacion");
+  if (!numero) {
+    const fecha = new Date();
+    const year = fecha.getFullYear();
+    const consecutivo = Date.now().toString().slice(-6);
+    numero = `TG-${year}-${consecutivo}`;
+    sessionStorage.setItem("tg_numero_cotizacion", numero);
+  }
+  return numero;
+}
+  function formatoCOP(valor) {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0
+    }).format(valor);
+  }
+
+  function limpiarHTML(texto) {
+  const div = document.createElement("div");
+  div.innerHTML = texto || "";
+  return div.textContent || div.innerText || "";
+}
+function obtenerCodigoProducto(fila) {
+  return fila.dataset.codigo || "";
+}
+function obtenerDescripcionProducto(fila) {
+  return fila.dataset.descripcion || "";
+}
+  const inputNombre = document.getElementById("cliente-nombre");
+const inputDocumento = document.getElementById("cliente-documento");
+const inputCelular = document.getElementById("cliente-celular");
+const inputCorreo = document.getElementById("cliente-correo");
+const inputDireccion = document.getElementById("cliente-direccion");
+const errorGeneral = document.getElementById("tg-error-general");
+inputNombre.addEventListener("input", function () {
+  this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "");
+});
+inputDocumento.addEventListener("input", function () {
+  this.value = this.value.replace(/\D/g, "");
+});
+inputCelular.addEventListener("input", function () {
+  this.value = this.value.replace(/\D/g, "").slice(0, 10);
+});
+function marcarError(input, idError, mensaje) {
+  input.classList.add("tg-input-error");
+  document.getElementById(idError).textContent = mensaje;
+}
+function limpiarError(input, idError) {
+  input.classList.remove("tg-input-error");
+  document.getElementById(idError).textContent = "";
+}
+function validarDatosCliente() {
+  let valido = true;
+  limpiarError(inputNombre, "error-nombre");
+  limpiarError(inputDocumento, "error-documento");
+  limpiarError(inputCelular, "error-celular");
+  limpiarError(inputCorreo, "error-correo");
+  limpiarError(inputDireccion, "error-direccion");
+  errorGeneral.textContent = "";
+  const correoValido = /^[^\s@]+@(gmail\.com|yahoo\.com|hotmail\.com|outlook\.com)$/i;
+  if (!inputNombre.value.trim()) {
+    marcarError(inputNombre, "error-nombre", "Digite el nombre");
+    valido = false;
+  }
+  if (!inputDocumento.value.trim()) {
+    marcarError(inputDocumento, "error-documento", "Digite el documento");
+    valido = false;
+  }
+  if (inputCelular.value.trim().length !== 10) {
+    marcarError(inputCelular, "error-celular", "Digitar número completo");
+    valido = false;
+  }
+  if (!correoValido.test(inputCorreo.value.trim())) {
+    marcarError(inputCorreo, "error-correo", "Digite un correo válido");
+    valido = false;
+  }
+if (!inputDireccion.value.trim()) {
+  marcarError(inputDireccion, "error-direccion", "Digite la dirección");
+  valido = false;
+}
+if (tbody.querySelectorAll("tr").length === 0) {
+  errorGeneral.textContent = "Debe agregar al menos un producto.";
+  valido = false;
+}
+let cantidadesValidas = true;
+tbody.querySelectorAll(".cantidad").forEach(function(input) {
+  if (Number(input.value) < 1) {
+    cantidadesValidas = false;
+  }
+});
+if (!cantidadesValidas) {
+  errorGeneral.textContent = "Todas las cantidades deben ser mayores a cero.";
+  valido = false;
+}
+if (!valido && !errorGeneral.textContent) {
+  errorGeneral.textContent = "Digite todos los espacios correctamente.";
+}
+return valido;
+}
+  function crearFilaManual() {
+    const fila = document.createElement("tr");
+    let opciones = productos.map(function(producto) {
+      return `<option value="${producto.precio}">${producto.nombre}</option>`;
+    }).join("");
+    fila.innerHTML = `
+      <td>
+        <select class="producto-manual">
+          ${opciones}
+        </select>
+      </td>
+      <td class="precio" data-precio="0">$0</td>
+      <td><input type="number" class="cantidad" value="1" min="1"></td>
+      <td class="subtotal">$0</td>
+      <td><button type="button" class="eliminar-fila">X</button></td>
+    `;
+    tbody.appendChild(fila);
+    fila.querySelector(".producto-manual").addEventListener("change", calcular);
+    fila.querySelector(".cantidad").addEventListener("input", calcular);
+    fila.querySelector(".eliminar-fila").addEventListener("click", function () {
+      fila.remove();
+      calcular();
+    });
+    calcular();
+  }
+  function crearFilaDesdeDrag(productoDrag) {
+    const fila = document.createElement("tr");
+    const precio = Number(productoDrag.precio) || 0;
+
+    fila.dataset.codigo = productoDrag.codigo || "";
+		fila.dataset.descripcion = productoDrag.descripcion || "";
+    fila.innerHTML = `
+      <td>
+        <div class="tg-producto-celda">
+          <img src="${productoDrag.imagen}" alt="">
+          <span>${productoDrag.nombre}</span>
+        </div>
+      </td>
+      <td class="precio" data-precio="${precio}">${formatoCOP(precio)}</td>
+      <td><input type="number" class="cantidad" value="1" min="1"></td>
+      <td class="subtotal">${formatoCOP(precio)}</td>
+      <td><button type="button" class="eliminar-fila">X</button></td>
+    `;
+    tbody.appendChild(fila);
+    fila.querySelector(".cantidad").addEventListener("input", calcular);
+    fila.querySelector(".eliminar-fila").addEventListener("click", function () {
+    fila.remove();
+      let productosGuardados = JSON.parse(localStorage.getItem("tg_productos_cotizador")) || [];
+      productosGuardados = productosGuardados.filter(function(item) {
+        return item.link !== productoDrag.link;
+      });
+      localStorage.setItem("tg_productos_cotizador", JSON.stringify(productosGuardados));
+      calcular();
+    });
+  }
+  function calcular() {
+    let total = 0;
+    tbody.querySelectorAll("tr").forEach(function (fila) {
+      const productoManual = fila.querySelector(".producto-manual");
+      const cantidad = fila.querySelector(".cantidad");
+      const unidades = Number(cantidad.value) || 1;
+      let precio = 0;
+      if (productoManual) {
+        precio = Number(productoManual.value) || 0;
+      } else {
+        precio = Number(fila.querySelector(".precio").dataset.precio) || 0;
+      }
+      const subtotal = precio * unidades;
+      fila.querySelector(".precio").dataset.precio = precio;
+      fila.querySelector(".precio").textContent = formatoCOP(precio);
+      fila.querySelector(".subtotal").textContent = formatoCOP(subtotal);
+      total += subtotal;
+    });
+    totalElemento.textContent = formatoCOP(total);
+  }
+  function obtenerTextoProducto(fila) {
+    const productoManual = fila.querySelector(".producto-manual");
+    const productoDrag = fila.querySelector(".tg-producto-celda span");
+    if (productoManual) {
+      return productoManual.selectedOptions[0].text;
+    }
+    if (productoDrag) {
+      return productoDrag.innerText;
+    }
+    return "";
+  }
+  const urlGoogleSheets = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT/exec";
+function armarDatosCotizacion() {
+  calcular();
+  const numeroCotizacion = obtenerNumeroCotizacion();
+  const nombre = document.getElementById("cliente-nombre").value || "Cliente";
+  const documento = document.getElementById("cliente-documento").value || "";
+  const celular = document.getElementById("cliente-celular").value || "";
+  const correo = document.getElementById("cliente-correo").value || "";
+  const direccion = document.getElementById("cliente-direccion").value || "";
+  const total = totalElemento.textContent;
+  let productosTexto = "";
+  let detalleProductos = [];
+  tbody.querySelectorAll("tr").forEach(function (fila) {
+    const codigo = obtenerCodigoProducto(fila);
+    const producto = obtenerTextoProducto(fila);
+    const descripcion = obtenerDescripcionProducto(fila);
+    const precio = fila.querySelector(".precio").textContent;
+    const cantidad = fila.querySelector(".cantidad").value;
+    const subtotal = fila.querySelector(".subtotal").textContent;
+    productosTexto +=
+`Código: ${codigo}
+Producto: ${producto}
+Descripción: ${descripcion}
+Precio unitario: ${precio}
+Cantidad: ${cantidad}
+Subtotal: ${subtotal}
+`;
+    detalleProductos.push({
+      codigo: codigo,
+      producto: producto,
+      descripcion: descripcion,
+      precio: precio,
+      cantidad: cantidad,
+      subtotal: subtotal
+    });
+  });
+  return {
+    numero: numeroCotizacion,
+    cliente: nombre,
+    documento: documento,
+    celular: celular,
+    correo: correo,
+    direccion: direccion,
+    productos: productosTexto,
+    total: total,
+    detalleProductos: detalleProductos
+  };
+}
+async function guardarCotizacionUnaVez() {
+  const datosCotizacion = armarDatosCotizacion();
+  const claveGuardado = "tg_cotizacion_guardada_" + datosCotizacion.numero;
+  if (sessionStorage.getItem(claveGuardado)) {
+    return datosCotizacion;
+  }
+  try {
+    await fetch(urlGoogleSheets, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(datosCotizacion)
+    });
+    sessionStorage.setItem(claveGuardado, "true");
+  } catch (error) {
+    console.log("No se pudo guardar en Google Sheets", error);
+  }
+  return datosCotizacion;
+}
+async function descargarExcel() {
+  calcular();
+  const workbook = new ExcelJS.Workbook();
+  const amarilloTG = "FFFFF200";
+  const negro = "FF000000";
+  const gris = "FF808080";
+  const grisClaro = "FFD9D9D9";
+  const blanco = "FFFFFFFF";
+  const logoBase64 = await fetch("https://tiendagym.com/wp-content/uploads/2026/03/cropped-Favino-1.png")
+    .then(res => res.blob())
+    .then(blob => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    }));
+  const logoId = workbook.addImage({
+    base64: logoBase64,
+    extension: "png",
+  });
+  const worksheet = workbook.addWorksheet("Cotización");
+  worksheet.columns = [
+    { width: 18 },
+    { width: 28 },
+    { width: 22 },
+    { width: 20 },
+    { width: 16 },
+    { width: 22 }
+  ];
+  worksheet.getRow(1).height = 40;
+  worksheet.getRow(2).height = 40;
+  worksheet.getRow(3).height = 28;
+  worksheet.getRow(4).height = 28;
+  worksheet.getRow(5).height = 24;
+  worksheet.getRow(6).height = 24;
+  worksheet.getRow(7).height = 24;
+  worksheet.getRow(8).height = 24;
+  worksheet.getRow(9).height = 34;
+  worksheet.getRow(10).height = 34;
+  worksheet.getRow(11).height = 22;
+  worksheet.mergeCells("A1:B4");
+  worksheet.addImage(logoId, {
+    tl: { col: 0.83, row: 0.35 },
+    ext: { width: 110, height: 110 }
+  });
+  worksheet.mergeCells("D1:F1");
+  worksheet.getCell("D1").value = "Cotización";
+  worksheet.getCell("D1").font = { bold: true, size: 20, color: { argb: blanco } };
+  worksheet.getCell("D1").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell("D1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+  const numeroCotizacion = obtenerNumeroCotizacion();
+  worksheet.mergeCells("D2:E3");
+  worksheet.getCell("D2").value = "No.";
+  worksheet.getCell("D2").font = { bold: true };
+  worksheet.getCell("D2").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.mergeCells("F2:F3");
+  worksheet.getCell("F2").value = numeroCotizacion;
+  worksheet.getCell("F2").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.mergeCells("D4:E5");
+  worksheet.getCell("D4").value = "Fecha";
+  worksheet.getCell("D4").font = { bold: true };
+  worksheet.getCell("D4").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.mergeCells("F4:F5");
+  worksheet.getCell("F4").value = fechaElemento.textContent;
+  worksheet.getCell("F4").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.mergeCells("D6:F6");
+  worksheet.getCell("D6").value = "Tienda Gym SAS";
+  worksheet.getCell("D6").font = { bold: true, size: 18 };
+  worksheet.getCell("D6").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell("D6").fill = { type: "pattern", pattern: "solid", fgColor: { argb: amarilloTG } };
+  worksheet.mergeCells("D7:E7");
+  worksheet.getCell("D7").value = "NIT.";
+  worksheet.getCell("D7").font = { bold: true };
+  worksheet.getCell("D7").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell("F7").value = "901790691-6";
+  worksheet.getCell("F7").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.mergeCells("D8:E8");
+  worksheet.getCell("D8").value = "celular";
+  worksheet.getCell("D8").font = { bold: true };
+  worksheet.getCell("D8").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell("F8").value = "3508133178";
+  worksheet.getCell("F8").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.mergeCells("D9:E10");
+  worksheet.getCell("D9").value = "Cómo pagar?";
+  worksheet.getCell("D9").font = { bold: true, color: { argb: blanco } };
+  worksheet.getCell("D9").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell("D9").fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+  worksheet.getCell("F9").value = "Abono para confirmar compra (iniciar producción)";
+  worksheet.getCell("F9").font = { size: 11 };
+  worksheet.getCell("F9").alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+  worksheet.getCell("F9").fill = { type: "pattern", pattern: "solid", fgColor: { argb: amarilloTG } };
+  worksheet.getCell("F10").value = "60%";
+  worksheet.getCell("F10").font = { bold: true, size: 18 };
+  worksheet.getCell("F10").alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell("F10").fill = { type: "pattern", pattern: "solid", fgColor: { argb: amarilloTG } };
+  worksheet.getCell("D11").value = "Davivienda ahorros";
+  worksheet.mergeCells("E11:F11");
+  worksheet.getCell("E11").value = "•••• (cuenta oculta por privacidad)";
+  ["D11", "E11"].forEach(celda => {
+    worksheet.getCell(celda).alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getCell(celda).fill = { type: "pattern", pattern: "solid", fgColor: { argb: amarilloTG } };
+  });
+  const datosCliente = [
+    ["cliente", document.getElementById("cliente-nombre").value],
+    ["documento", document.getElementById("cliente-documento").value],
+    ["celular", document.getElementById("cliente-celular").value],
+    ["correo", document.getElementById("cliente-correo").value],
+    ["dirección", document.getElementById("cliente-direccion").value]
+  ];
+  datosCliente.forEach((dato, index) => {
+    const row = 5 + index;
+    worksheet.getCell(`A${row}`).value = dato[0];
+    worksheet.getCell(`A${row}`).font = { bold: true, color: { argb: blanco } };
+    worksheet.getCell(`A${row}`).alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getCell(`A${row}`).fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+    worksheet.getCell(`B${row}`).value = dato[1];
+    worksheet.getCell(`B${row}`).alignment = { horizontal: "center", vertical: "middle" };
+  });
+  const headerRow = 13;
+  worksheet.mergeCells(`A${headerRow}:F${headerRow}`);
+  worksheet.getCell(`A${headerRow}`).value = "Productos";
+  worksheet.getCell(`A${headerRow}`).font = { bold: true, size: 16, color: { argb: blanco } };
+  worksheet.getCell(`A${headerRow}`).alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell(`A${headerRow}`).fill = { type: "pattern", pattern: "solid", fgColor: { argb: gris } };
+  const tableHeader = 14;
+  const columnas = ["Cod producto", "Nombre", "Descripción", "Precio unitario", "cantidad", "Sub-total"];
+  columnas.forEach((texto, i) => {
+    const cell = worksheet.getCell(tableHeader, i + 1);
+    cell.value = texto;
+    cell.font = { bold: true };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: grisClaro } };
+  });
+  let filaActual = 15;
+  tbody.querySelectorAll("tr").forEach(function (fila) {
+    const producto = obtenerTextoProducto(fila);
+    const precio = fila.querySelector(".precio").textContent;
+    const cantidad = fila.querySelector(".cantidad").value;
+    const subtotal = fila.querySelector(".subtotal").textContent;
+    worksheet.getCell(`A${filaActual}`).value = obtenerCodigoProducto(fila);
+    worksheet.getCell(`B${filaActual}`).value = producto;
+    worksheet.getCell(`C${filaActual}`).value = obtenerDescripcionProducto(fila);
+    worksheet.getCell(`D${filaActual}`).value = precio;
+    worksheet.getCell(`E${filaActual}`).value = cantidad;
+    worksheet.getCell(`F${filaActual}`).value = subtotal;
+    ["A", "B", "C", "D", "E", "F"].forEach(col => {
+      worksheet.getCell(`${col}${filaActual}`).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+        wrapText: true
+      };
+    });
+    filaActual++;
+  });
+  worksheet.mergeCells(`A${filaActual}:E${filaActual}`);
+  worksheet.getCell(`A${filaActual}`).value = "Valor parcial";
+  worksheet.getCell(`A${filaActual}`).font = { bold: true, italic: true, size: 16, color: { argb: blanco } };
+  worksheet.getCell(`A${filaActual}`).alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell(`A${filaActual}`).fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+  worksheet.getCell(`F${filaActual}`).value = totalElemento.textContent;
+  worksheet.getCell(`F${filaActual}`).font = { bold: true, color: { argb: blanco } };
+  worksheet.getCell(`F${filaActual}`).alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell(`F${filaActual}`).fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+  filaActual++;
+  worksheet.mergeCells(`A${filaActual}:E${filaActual}`);
+  worksheet.getCell(`A${filaActual}`).value = "Total";
+  worksheet.getCell(`A${filaActual}`).font = { bold: true, size: 18, color: { argb: blanco } };
+  worksheet.getCell(`A${filaActual}`).alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell(`A${filaActual}`).fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+  worksheet.getCell(`F${filaActual}`).value = totalElemento.textContent;
+  worksheet.getCell(`F${filaActual}`).font = { bold: true, size: 16, color: { argb: blanco } };
+  worksheet.getCell(`F${filaActual}`).alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getCell(`F${filaActual}`).fill = { type: "pattern", pattern: "solid", fgColor: { argb: negro } };
+  filaActual += 2;
+  worksheet.mergeCells(`A${filaActual}:F${filaActual + 3}`);
+worksheet.getCell(`A${filaActual}`).value = {
+  richText: [
+    { text: "VALIDEZ DE LA OFERTA: ", font: { bold: true, size: 10 } },
+    { text: "5 días\n\n", font: { bold: false, size: 10 } },
+    { text: "TIEMPO DE ENTREGA: ", font: { bold: true, size: 10 } },
+    { text: "30 días hábiles\n\n", font: { bold: false, size: 10 } },
+    { text: "CONDICIONES DE PAGO: ", font: { bold: true, size: 10 } },
+    { text: "60% para inicio, 40% restante cuando las máquinas se encuentren listas para el despacho.\n\n", font: { bold: false, size: 10 } },
+    { text: "TRANSPORTE E INSTALACIÓN POR CUENTA DEL COMPRADOR", font: { bold: true, size: 10 } }
+  ]
+};
+worksheet.getCell(`A${filaActual}`).alignment = {
+  horizontal: "center",
+  vertical: "middle",
+  wrapText: true
+};
+worksheet.getRow(filaActual).height = 110;
+worksheet.getRow(filaActual + 1).height = 25;
+worksheet.getRow(filaActual + 2).height = 25;
+worksheet.getRow(filaActual + 3).height = 25;
+  worksheet.eachRow(function(row) {
+    row.eachCell(function(cell) {
+      cell.border = {};
+      cell.alignment = {
+        vertical: "middle",
+        wrapText: true,
+        ...cell.alignment
+      };
+    });
+  });
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "cotizacion-tienda-gym.xlsx";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function descargarPDF() {
+  calcular();
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+  const negro = [0, 0, 0];
+  const amarillo = [255, 242, 0];
+  const gris = [128, 128, 128];
+  const logoUrl = "https://tiendagym.com/wp-content/uploads/2026/03/cropped-Favino-1.png";
+  const logoBase64 = await fetch(logoUrl)
+    .then(res => res.blob())
+    .then(blob => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    }));
+  const numeroCotizacion = obtenerNumeroCotizacion();
+  pdf.addImage(logoBase64, "PNG", 18, 12, 32, 32);
+  pdf.setFillColor(...negro);
+  pdf.rect(105, 10, 85, 10, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(16);
+  pdf.text("Cotización", 147, 17, { align: "center" });
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("cliente", 18, 55);
+  pdf.text("documento", 18, 63);
+  pdf.text("celular", 18, 71);
+  pdf.text("correo", 18, 79);
+  pdf.text("dirección", 18, 87);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(document.getElementById("cliente-nombre").value || "", 50, 55);
+  pdf.text(document.getElementById("cliente-documento").value || "", 50, 63);
+  pdf.text(document.getElementById("cliente-celular").value || "", 50, 71);
+  pdf.text(document.getElementById("cliente-correo").value || "", 50, 79);
+  pdf.text(document.getElementById("cliente-direccion").value || "", 50, 87);
+  pdf.setFillColor(...amarillo);
+  pdf.rect(105, 46, 85, 10, "F");
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(14);
+  pdf.text("Tienda Gym SAS", 147, 53, { align: "center" });
+  pdf.setFontSize(10);
+  pdf.text("No.", 110, 30);
+  pdf.text(numeroCotizacion, 160, 30);
+  pdf.text("Fecha", 110, 40);
+  pdf.text(fechaElemento.textContent, 160, 40);
+  pdf.text("NIT.", 110, 64);
+  pdf.text("901790691-6", 160, 64);
+  pdf.text("celular", 110, 72);
+  pdf.text("3508133178", 160, 72);
+  pdf.setFillColor(...negro);
+  pdf.rect(105, 78, 42.5, 22, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.text("Cómo pagar?", 126, 91, { align: "center" });
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFillColor(...amarillo);
+  pdf.rect(147.5, 78, 42.5, 22, "F");
+  pdf.setFontSize(9);
+  pdf.text("Abono para", 168.75, 84, { align: "center" });
+  pdf.text("confirmar compra", 168.75, 89, { align: "center" });
+  pdf.text("(iniciar producción)", 168.75, 94, { align: "center" });
+  pdf.setFontSize(14);
+  pdf.text("60%", 175, 99, { align: "center" });
+  pdf.setFontSize(9);
+  pdf.text("Davivienda ahorros", 110, 106);
+  pdf.text("•••• (cuenta oculta)", 155, 106);
+  let y = 118;
+  pdf.setFillColor(...gris);
+  pdf.rect(10, y, 190, 8, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(13);
+  pdf.text("Productos", 105, y + 6, { align: "center" });
+  y += 8;
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFillColor(217, 217, 217);
+  pdf.rect(10, y, 190, 7, "F");
+  pdf.setFontSize(8);
+  pdf.text("Cod producto", 15, y + 5);
+  pdf.text("Nombre", 50, y + 5);
+  pdf.text("Descripción", 90, y + 5);
+  pdf.text("Precio unitario", 123, y + 5);
+  pdf.text("cantidad", 158, y + 5);
+  pdf.text("Sub-total", 180, y + 5);
+  y += 12;
+tbody.querySelectorAll("tr").forEach(function (fila) {
+  const codigo = obtenerCodigoProducto(fila);
+  const producto = obtenerTextoProducto(fila);
+  const descripcion = obtenerDescripcionProducto(fila);
+  const precio = fila.querySelector(".precio").textContent;
+  const cantidad = fila.querySelector(".cantidad").value;
+  const subtotal = fila.querySelector(".subtotal").textContent;
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7);
+  pdf.text(codigo.substring(0, 12), 15, y);
+  pdf.text(producto.substring(0, 24), 45, y);
+  pdf.text(descripcion.substring(0, 22), 90, y);
+  pdf.text(precio, 123, y);
+  pdf.text(cantidad, 162, y);
+  pdf.text(subtotal, 180, y);
+  y += 7;
+});
+  pdf.setFillColor(...negro);
+  pdf.rect(10, y, 190, 16, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bolditalic");
+  pdf.setFontSize(13);
+  pdf.text("Valor parcial", 105, y + 6, { align: "center" });
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(16);
+  pdf.text("Total", 105, y + 13, { align: "center" });
+  pdf.text(totalElemento.textContent, 185, y + 13, { align: "right" });
+y += 28;
+pdf.setTextColor(0, 0, 0);
+pdf.setFontSize(9);
+// VALIDEZ
+pdf.setFont("helvetica", "bold");
+pdf.text("VALIDEZ DE LA OFERTA:", 103, y, { align: "right" });
+pdf.setFont("helvetica", "normal");
+pdf.text("5 días", 106, y, { align: "left" });
+y += 12;
+// TIEMPO
+pdf.setFont("helvetica", "bold");
+pdf.text("TIEMPO DE ENTREGA:", 103, y, { align: "right" });
+pdf.setFont("helvetica", "normal");
+pdf.text("30 días hábiles", 106, y, { align: "left" });
+y += 12;
+// CONDICIONES
+pdf.setFont("helvetica", "bold");
+pdf.text("CONDICIONES DE PAGO:", 57, y, { align: "left" });
+pdf.setFont("helvetica", "normal");
+pdf.text(
+  "60% para inicio, 40% restante cuando las máquinas se encuentren listas para el despacho.",
+  96,
+  y,
+  {
+    align: "left",
+    maxWidth: 100
+  }
+);
+y += 14;
+// TRANSPORTE
+pdf.setFont("helvetica", "bold");
+pdf.text(
+  "TRANSPORTE E INSTALACIÓN POR CUENTA DEL COMPRADOR",
+  105,
+  y,
+  { align: "center" }
+);
+
+  pdf.save("cotizacion-tienda-gym.pdf");
+}
+
+const buscadorContenedor = document.getElementById("tg-buscador-contenedor");
+const buscadorProductos = document.getElementById("tg-buscador-productos");
+const resultadosProductos = document.getElementById("tg-resultados-productos");
+botonAgregar.addEventListener("click", function () {
+  buscadorContenedor.classList.toggle("activo");
+  buscadorProductos.value = "";
+  if (buscadorContenedor.classList.contains("activo")) {
+    buscarProductosWooCommerce("");
+    buscadorProductos.focus();
+  }
+});
+async function buscarProductosWooCommerce(termino = "") {
+  resultadosProductos.innerHTML = "Cargando productos...";
+  try {
+    let url = `/wp-json/wc/store/v1/products?per_page=20`;
+    if (termino.length >= 2) {
+      url += `&search=${encodeURIComponent(termino)}`;
+    }
+    const respuesta = await fetch(url);
+    const productos = await respuesta.json();
+    if (!productos.length) {
+      resultadosProductos.innerHTML = "No se encontraron productos.";
+      return;
+    }
+    resultadosProductos.innerHTML = "";
+    productos.forEach(function(producto) {
+      const imagen = producto.images && producto.images.length ? producto.images[0].src : "";
+      const precio = producto.prices && producto.prices.price ? Number(producto.prices.price) : 0;
+      const item = document.createElement("div");
+      item.className = "tg-producto-resultado";
+      item.innerHTML = `
+        <img src="${imagen}" alt="">
+        <div>
+          <strong>${producto.name}</strong>
+          <span>${formatoCOP(precio)}</span>
+        </div>
+      `;
+      item.addEventListener("click", async function () {
+  if (
+    producto.prices &&
+    producto.prices.price_range &&
+    producto.prices.price_range.min_amount !== producto.prices.price_range.max_amount
+  ) {
+    mostrarVariacionesProducto(producto, imagen, item);
+    return;
+  }
+ crearFilaDesdeDrag({
+  nombre: producto.name,
+  precio: precio,
+  imagen: imagen,
+  link: producto.permalink,
+  codigo: producto.sku || "",
+  descripcion: limpiarHTML(producto.short_description || "")
+});
+  buscadorContenedor.classList.remove("activo");
+  calcular();
+});
+      resultadosProductos.appendChild(item);
+    });
+  } catch (error) {
+    resultadosProductos.innerHTML = "Error buscando productos.";
+    console.log(error);
+  }
+}
+
+  async function mostrarVariacionesProducto(producto, imagen, itemPadre) {
+  const variacionAnterior = itemPadre.nextElementSibling;
+  if (variacionAnterior && variacionAnterior.classList.contains("tg-variaciones-box")) {
+    variacionAnterior.remove();
+    return;
+  }
+  const box = document.createElement("div");
+  box.className = "tg-variaciones-box";
+  box.innerHTML = "Cargando opciones...";
+  itemPadre.insertAdjacentElement("afterend", box);
+  try {
+    const respuesta = await fetch(producto.permalink);
+    const html = await respuesta.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const formVariaciones = doc.querySelector(".variations_form");
+    if (!formVariaciones) {
+      box.innerHTML = "No se encontraron opciones para este producto.";
+      return;
+    }
+    const dataVariaciones = formVariaciones.getAttribute("data-product_variations");
+    if (!dataVariaciones) {
+      box.innerHTML = "No se encontraron opciones para este producto.";
+      return;
+    }
+    const variaciones = JSON.parse(dataVariaciones);
+    if (!variaciones.length) {
+      box.innerHTML = "No se encontraron opciones para este producto.";
+      return;
+    }
+    box.innerHTML = "";
+    variaciones.forEach(function(variacion) {
+      const precioVariacion = Number(variacion.display_price) || 0;
+      let nombreVariacion = Object.values(variacion.attributes || {})
+        .map(valor => String(valor).replace(/-/g, " "))
+        .join(" - ");
+      const opcion = document.createElement("div");
+      opcion.className = "tg-variacion-opcion";
+      opcion.innerHTML = `
+        <span>${nombreVariacion || "Opción"}</span>
+        <span>${formatoCOP(precioVariacion)}</span>
+      `;
+      opcion.addEventListener("click", function () {
+        crearFilaDesdeDrag({
+  				nombre: `${producto.name} - ${nombreVariacion}`,
+  				precio: precioVariacion,
+  				imagen: imagen,
+  				link: producto.permalink + "?variation_id=" + variacion.variation_id,
+  				codigo: variacion.sku || "",
+  				descripcion: limpiarHTML(producto.short_description || "")
+					});
+        buscadorContenedor.classList.remove("activo");
+        calcular();
+      });
+      box.appendChild(opcion);
+    });
+  } catch (error) {
+    box.innerHTML = "Error cargando las opciones.";
+    console.log(error);
+  }
+}
+buscadorProductos.addEventListener("input", function () {
+  buscarProductosWooCommerce(this.value.trim());
+});
+document.getElementById("descargar-excel").addEventListener("click", async function () {
+  if (!validarDatosCliente()) return;
+  await guardarCotizacionUnaVez();
+  descargarExcel();
+});
+document.getElementById("descargar-pdf").addEventListener("click", async function () {
+  if (!validarDatosCliente()) return;
+  await guardarCotizacionUnaVez();
+  descargarPDF();
+});
+
+document.getElementById("enviar-whatsapp").addEventListener("click", async function () {
+  if (!validarDatosCliente()) return;
+  const datosCotizacion = await guardarCotizacionUnaVez();
+  const numeroCotizacion = datosCotizacion.numero;
+  const nombre = datosCotizacion.cliente;
+  const celular = datosCotizacion.celular;
+  const productosTexto = datosCotizacion.productos;
+  const total = datosCotizacion.total;
+  const mensaje =
+`Hola, quiero solicitar esta cotización:
+No. Cotización: ${numeroCotizacion}
+👤 Cliente: ${nombre}
+📱 Celular: ${celular}
+📦 PRODUCTOS:
+${productosTexto}
+💰 TOTAL:
+${total}
+Tienda Gym SAS`;
+  const mensajeCodificado = encodeURIComponent(mensaje);
+  window.open(
+    `https://wa.me/3208745594?text=${mensajeCodificado}`,
+    "_blank"
+  );
+});
+
+  const productosGuardados = JSON.parse(localStorage.getItem("tg_productos_cotizador")) || [];
+  if (productosGuardados.length > 0) {
+  productosGuardados.forEach(function(productoGuardado) {
+    crearFilaDesdeDrag(productoGuardado);
+  });
+}
+  calcular();
+});
+</script>
