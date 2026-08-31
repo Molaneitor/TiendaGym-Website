@@ -1,16 +1,19 @@
 <?php
 /**
- * Snippet de WordPress (plugin "Code Snippets") que inyecta el widget flotante
- * de arrastrar-y-soltar productos hacia el cotizador, en todas las páginas
- * del sitio excepto la propia página /cotizador.
+ * WordPress snippet (via the "Code Snippets" plugin) that injects the floating
+ * drag-and-drop-to-quote widget on every page of the site except the /cotizador
+ * page itself.
  *
- * Flujo: cada <li class="product"> del catálogo de WooCommerce se vuelve
- * "draggable"; al soltar el producto sobre el panel, si es un producto con
- * variaciones (talla/color/capacidad, etc.) se hace scraping del formulario
- * de variaciones de la página del producto (WooCommerce no expone eso por la
- * Store API) para mostrar las opciones antes de guardarlo. El producto elegido
- * se guarda en localStorage, que es leído por la página del cotizador
- * (ver codigo/pagina-cotizador.html) para poblar la tabla automáticamente.
+ * Flow: every <li class="product"> in the WooCommerce catalog becomes
+ * "draggable"; when a product is dropped onto the panel, if it's a product with
+ * variations (size/color/capacity, etc.) the product page's variations form is
+ * scraped (WooCommerce doesn't expose that through the Store API) to show the
+ * options before saving it. The chosen product is saved to localStorage, which
+ * the quoting page (see codigo/pagina-cotizador.html) reads to populate the
+ * table automatically.
+ *
+ * Note: the visible UI text (labels, buttons) is left in Spanish on purpose —
+ * it's the real copy that ships on the live, Spanish-language site.
  */
 
 add_action('wp_footer', 'tg_cotizador_flotante');

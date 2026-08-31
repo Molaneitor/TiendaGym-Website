@@ -1,98 +1,95 @@
-# Tienda Gym — Sitio Web Corporativo
+# Tienda Gym — Corporate Website
 
-Sitio de e-commerce de la empresa Tienda Gym (venta de equipos y accesorios de gimnasio),
-diseñado, desarrollado y mantenido enteramente por mí con WordPress, Divi y WooCommerce.
+E-commerce website for Tienda Gym (a gym equipment and accessories store), designed,
+developed, and maintained entirely by me with WordPress, Divi, and WooCommerce.
 
-**Sitio en vivo:** [tiendagym.com](https://tiendagym.com/)
+**Live site:** [tiendagym.com](https://tiendagym.com/)
 
-> **Nota:** este no es un repositorio de código tradicional. El sitio corre sobre WordPress
-> (Divi + WooCommerce), no sobre un framework versionado en Git. Por eso este repo documenta
-> el trabajo real hecho sobre el sitio — con capturas del resultado y, en `codigo/`, el HTML,
-> CSS, PHP y JavaScript reales que escribí para las dos funcionalidades más importantes que
-> construí a medida (sanitizados de datos financieros/de acceso, nada más).
+> **Note:** this is not a traditional code repository. The site runs on WordPress
+> (Divi + WooCommerce), not on a framework tracked in Git. That's why this repo documents the
+> real work done on the site — with screenshots of the result and, in `codigo/`, the actual
+> HTML, CSS, PHP, and JavaScript I wrote for the two most important features I built from
+> scratch (sanitized of financial/access data only, nothing else).
 
 ![Home](docs/screenshots/home.png)
 
-## Qué es
+## What it is
 
-Tienda web completa para la venta de equipos de gimnasio (línea profesional, línea hogar,
-cardio, peso y accesorios), con catálogo, carrito, checkout y — la parte más interesante —
-un sistema propio de cotizaciones que reemplazó un proceso manual que le costaba tiempo al
-equipo de ventas.
+A complete online store for gym equipment (professional line, home line, cardio, weights, and
+accessories), with a catalog, cart, checkout, and — the most interesting part — a custom
+quoting system that replaced a manual process that was costing the sales team time.
 
-## El problema que resolví: cotizaciones que consumían tiempo del equipo de ventas
+## The problem I solved: quotes that were eating up the sales team's time
 
-Los clientes de Tienda Gym suelen pedir varios productos combinados y cotizaciones
-personalizadas (equipar un gimnasio completo, por ejemplo), no compras simples de un solo
-producto. Antes, cada una de esas cotizaciones la armaba manualmente un vendedor: buscar
-precios, calcular subtotales, armar el documento. Con volumen, eso empezó a quitarle mucho
-tiempo al equipo comercial.
+Tienda Gym's customers usually order several combined products and custom quotes (equipping an
+entire gym, for example), not simple single-product purchases. Before, every one of those
+quotes was put together manually by a sales rep: looking up prices, calculating subtotals,
+building the document. As volume grew, that started taking up a lot of the sales team's time.
 
-**Lo que construí:** un cotizador de autoservicio integrado en el propio sitio, para que sea
-el cliente quien arma su cotización, y el vendedor solo la reciba lista para confirmar.
+**What I built:** a self-service quoting tool built into the site itself, so the customer puts
+together their own quote and the sales rep only has to receive it ready to confirm.
 
-- **Dos formas de agregar productos al cotizador:**
-  - Un **widget flotante de arrastrar y soltar** que aparece en todas las páginas del catálogo:
-    el cliente arrastra la tarjeta de cualquier producto hacia el panel y este se guarda para
-    la cotización (usando `localStorage`, sin necesidad de cuenta ni login).
-  - Un **buscador en vivo** dentro de la página `/cotizador`, que consulta la Store API de
-    WooCommerce en tiempo real para agregar productos sin salir de esa página.
-- **Reto técnico:** varios productos son variables (cambian de precio según talla, color,
-  capacidad, etc.), y la Store API de WooCommerce no expone el precio por variación en el
-  listado. Lo resolví haciendo *scraping* del formulario de variaciones que WooCommerce ya
-  inyecta en el HTML de la página de cada producto (`data-product_variations`), y mostrando
-  esas opciones tanto en el widget flotante como en el buscador antes de agregar el producto.
-- **Validación de datos del cliente** en tiempo real: nombre solo con letras, documento y
-  celular solo con números (celular limitado a 10 dígitos), correo restringido a dominios
-  comunes, dirección obligatoria — con mensajes de error específicos por campo y un mensaje
-  general si falta algo (ej. no hay productos agregados).
-- **Tres formas de cerrar la cotización:**
-  - Descargar un **PDF** con el membrete y los colores de la empresa (generado en el navegador
-    con jsPDF, incluyendo el logo cargado dinámicamente).
-  - Descargar un **Excel** con el mismo formato, con celdas combinadas, colores corporativos y
-    el logo insertado (generado con ExcelJS).
-  - **Enviar por WhatsApp** directo al número de ventas, con el mensaje ya armado (cliente,
-    productos, cantidades y total).
-- **Registro automático:** cada cotización generada se envía también, en segundo plano, a un
-  Google Apps Script que la guarda en una hoja de Google Sheets — así el equipo de ventas
-  tiene un historial de todas las cotizaciones sin necesidad de una base de datos propia.
-- Cada cotización recibe un número consecutivo único (`TG-AÑO-XXXXXX`), guardado en
-  `sessionStorage` para no duplicar el registro si el cliente descarga el PDF y el Excel de la
-  misma cotización.
+- **Two ways to add products to the quote:**
+  - A **drag-and-drop floating widget** that shows up on every catalog page: the customer
+    drags any product card onto the panel and it gets saved for the quote (using
+    `localStorage`, no account or login required).
+  - A **live search** inside the `/cotizador` page, which queries the WooCommerce Store API in
+    real time to add products without leaving that page.
+- **Technical challenge:** several products are variable (price changes by size, color,
+  capacity, etc.), and the WooCommerce Store API doesn't expose per-variation pricing in the
+  listing endpoint. I solved this by *scraping* the variations form that WooCommerce already
+  injects into each product page's HTML (`data-product_variations`), and showing those options
+  in both the floating widget and the search modal before adding the product.
+- **Real-time customer data validation:** name letters-only, ID and phone numbers-only (phone
+  capped at 10 digits), email restricted to common domains, address required — with
+  field-specific error messages and a general message if something's missing (e.g. no
+  products added).
+- **Three ways to close out the quote:**
+  - Download a **PDF** with the company's letterhead and colors (generated in the browser
+    with jsPDF, including the logo loaded dynamically).
+  - Download an **Excel** file with the same format, with merged cells, corporate colors, and
+    the logo embedded (generated with ExcelJS).
+  - **Send it over WhatsApp** straight to the sales number, with the message already put
+    together (customer, products, quantities, and total).
+- **Automatic logging:** every quote generated is also sent, in the background, to a Google
+  Apps Script that saves it to a Google Sheet — so the sales team has a record of every quote
+  without needing a database of their own.
+- Every quote gets a unique sequential number (`TG-YEAR-XXXXXX`), stored in `sessionStorage` so
+  the record isn't duplicated if the customer downloads both the PDF and the Excel for the same
+  quote.
 
-Todo esto lo implementé sin salir de WordPress: el HTML/CSS/JS de la página del cotizador vive
-en un módulo de código de Divi, y el widget flotante (que debe aparecer en *todas* las páginas)
-lo inyecté como snippet PHP con el plugin **Code Snippets**, enganchado al hook `wp_footer`.
-El código real de ambas piezas está en [`codigo/`](codigo/).
+I built all of this without leaving WordPress: the quoting page's HTML/CSS/JS lives in a Divi
+code module, and the floating widget (which needs to show up on *every* page) I injected as a
+PHP snippet with the **Code Snippets** plugin, hooked into `wp_footer`. The actual code for
+both pieces is in [`codigo/`](codigo/).
 
-## Checkout con múltiples medios de pago
+## Checkout with multiple payment methods
 
-Además del cotizador, configuré el checkout de WooCommerce con varios métodos de pago:
-Mercado Pago, tarjeta de crédito/débito, PSE y **Addi** (pago a cuotas). Al integrar Addi
-apareció un bug de contraste en el checkout clásico de WooCommerce — los mensajes de error se
-mostraban en texto azul sobre fondo azul, ilegibles — que resolví con CSS personalizado desde
-Divi (Opciones del Tema → General → CSS Personalizado), sin tocar archivos del tema ni del
-plugin.
+Besides the quoting tool, I set up WooCommerce checkout with several payment methods: Mercado
+Pago, credit/debit card, PSE, and **Addi** (buy-now-pay-later). Integrating Addi surfaced a
+contrast bug in WooCommerce's classic checkout — error messages showed up in blue text on a
+blue background, unreadable — which I fixed with custom CSS from Divi (Theme Options → General
+→ Custom CSS), without touching any theme or plugin files.
 
-![Medios de pago](docs/screenshots/medios-de-pago.png)
+![Payment methods](docs/screenshots/medios-de-pago.png)
 
-## Capturas
+## Screenshots
 
 | | |
 |---|---|
-| ![Catálogo](docs/screenshots/catalogo-productos.png) Catálogo de productos | ![Widget flotante](docs/screenshots/widget-cotizador-flotante.png) Widget flotante de arrastrar y soltar |
-| ![Página del cotizador](docs/screenshots/pagina-cotizador.png) Página del cotizador con datos del cliente | ![Checkout con Addi](docs/screenshots/checkout-addi.png) Checkout con Addi como método de pago |
+| ![Catalog](docs/screenshots/catalogo-productos.png) Product catalog | ![Floating widget](docs/screenshots/widget-cotizador-flotante.png) Drag-and-drop floating widget |
+| ![Quoting page](docs/screenshots/pagina-cotizador.png) Quoting page with customer details | ![Checkout with Addi](docs/screenshots/checkout-addi.png) Checkout with Addi as a payment method |
 
-![Snippet de código](docs/screenshots/editor-snippet-codigo.png)
-*El widget flotante inyectado como snippet PHP/JS/CSS con el plugin Code Snippets de WordPress.*
+![Code snippet](docs/screenshots/editor-snippet-codigo.png)
+*The floating widget injected as a PHP/JS/CSS snippet with the WordPress Code Snippets plugin.*
 
-## Stack técnico
+## Tech stack
 
-WordPress · Divi Builder · WooCommerce (Store API) · Code Snippets (PHP/JS/CSS a medida) ·
-JavaScript vanilla · jsPDF · ExcelJS · Google Apps Script (registro en Google Sheets) · Addi
-(pasarela de pago a cuotas)
+WordPress · Divi Builder · WooCommerce (Store API) · Code Snippets (custom PHP/JS/CSS) ·
+Vanilla JavaScript · jsPDF · ExcelJS · Google Apps Script (Google Sheets logging) · Addi
+(buy-now-pay-later gateway)
 
-## Otros proyectos
+## Other projects
 
-- [TiendaGymBI](https://github.com/Molaneitor/TiendaGymBI) — pipeline de datos de ventas,
-  costos e inventario de la misma empresa, con Python, SQL Server y Power BI.
+- [TiendaGymBI](https://github.com/Molaneitor/TiendaGymBI) — sales, costs, and inventory data
+  pipeline for the same company, built with Python, SQL Server, and Power BI.

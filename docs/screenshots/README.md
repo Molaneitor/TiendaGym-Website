@@ -1,14 +1,14 @@
-# Capturas del sitio
+# Site screenshots
 
-Ya incluidas en esta carpeta:
+Already included in this folder:
 
-- `home.png` — hero de la página de inicio
-- `catalogo-productos.png` — sección de productos más vendidos
-- `medios-de-pago.png` — footer con los logos de todos los medios de pago integrados
-- `widget-cotizador-flotante.png` — widget flotante de arrastrar y soltar con un producto agregado
-- `pagina-cotizador.png` — página `/cotizador` con los datos del cliente y la tabla de productos
-- `checkout-addi.png` — checkout de WooCommerce con Addi como método de pago
-- `editor-snippet-codigo.png` — el snippet del widget flotante en el editor de Code Snippets
+- `home.png` — homepage hero
+- `catalogo-productos.png` — best-selling products section
+- `medios-de-pago.png` — footer with the logos of every integrated payment method
+- `widget-cotizador-flotante.png` — drag-and-drop floating widget with a product added
+- `pagina-cotizador.png` — `/cotizador` page with customer details and the products table
+- `checkout-addi.png` — WooCommerce checkout with Addi as a payment method
+- `editor-snippet-codigo.png` — the floating widget snippet in the Code Snippets editor
 
-El `README.md` principal del repo ya referencia estos nombres — si los reemplazas por versiones
-propias, usa los mismos nombres de archivo o actualiza también los enlaces allá.
+The main repo `README.md` already references these filenames — if you swap in your own
+versions, use the same file names or update the links there too.
